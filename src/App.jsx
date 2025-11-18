@@ -1,71 +1,122 @@
+import { useEffect, useMemo, useState } from 'react'
+import LanguageSwitcher from './components/LanguageSwitcher'
+import LowLiteracyMode from './components/LowLiteracyMode'
+import VoiceAssistantButton from './components/VoiceAssistantButton'
+import LabHomeCollection from './components/LabHomeCollection'
+import MedicineSearch from './components/MedicineSearch'
+import DoctorDashboard from './components/DoctorDashboard'
+import HospitalConsole from './components/HospitalConsole'
+import GovAnalytics from './components/GovAnalytics'
+import AdminPanel from './components/AdminPanel'
+import { useAppointmentSync } from './hooks/useOfflineSync'
+
+function useStrings(lang) {
+  const [strings, setStrings] = useState({})
+  useEffect(() => {
+    import(`./i18n/${lang}.json`).then(mod => setStrings(mod))
+      .catch(() => import('./i18n/en.json').then(mod => setStrings(mod)))
+  }, [lang])
+  return strings
+}
+
 function App() {
+  const [lang, setLang] = useState(localStorage.getItem('lang') || 'en')
+  const [low, setLow] = useState(false)
+  const [role, setRole] = useState('patient')
+  const t = useStrings(lang)
+  const { online, syncing, lastSync } = useAppointmentSync()
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_50%)]"></div>
-
-      <div className="relative min-h-screen flex items-center justify-center p-8">
-        <div className="max-w-2xl w-full">
-          {/* Header with Flames icon */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center mb-6">
-              <img
-                src="/flame-icon.svg"
-                alt="Flames"
-                className="w-24 h-24 drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]"
-              />
-            </div>
-
-            <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">
-              Flames Blue
-            </h1>
-
-            <p className="text-xl text-blue-200 mb-6">
-              Build applications through conversation
-            </p>
+    <div className="min-h-screen bg-slate-50">
+      <LowLiteracyMode enabled={low} />
+      <header className="sticky top-0 z-10 bg-white border-b">
+        <div className="max-w-5xl mx-auto p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">RH</div>
+          <div className="hidden sm:flex items-center gap-2 ml-4">
+            <span className="text-sm text-slate-600">Role</span>
+            <select className="border rounded p-1" value={role} onChange={e=>setRole(e.target.value)}>
+              <option value="patient">Patient</option>
+              <option value="doctor">Doctor</option>
+              <option value="hospital">Hospital</option>
+              <option value="government">Government</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
-
-          {/* Instructions */}
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 shadow-xl mb-6">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                1
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Describe your idea</h3>
-                <p className="text-blue-200/80 text-sm">Use the chat panel on the left to tell the AI what you want to build</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                2
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Watch it build</h3>
-                <p className="text-blue-200/80 text-sm">Your app will appear in this preview as the AI generates the code</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                3
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Refine and iterate</h3>
-                <p className="text-blue-200/80 text-sm">Continue the conversation to add features and make changes</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="text-center">
-            <p className="text-sm text-blue-300/60">
-              No coding required • Just describe what you want
-            </p>
+          <div className="ml-auto flex items-center gap-3">
+            <div className={`text-xs px-2 py-1 rounded ${online ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{online ? 'Online' : 'Offline'}</div>
+            <LanguageSwitcher value={lang} onChange={setLang} />
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={low} onChange={e=>setLow(e.target.checked)} />
+              <span>Low Literacy</span>
+            </label>
           </div>
         </div>
-      </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto p-4 space-y-6">
+        {/* Patient home grid */}
+        {role === 'patient' && (
+          <>
+            <section className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <button className="aspect-square rounded-xl bg-white shadow border p-3 text-left">
+                <div className="text-4xl">🚑</div>
+                <div className="font-bold">SOS</div>
+                <div className="text-xs text-slate-500">Emergency</div>
+              </button>
+              <button className="aspect-square rounded-xl bg-white shadow border p-3 text-left">
+                <div className="text-4xl">📅</div>
+                <div className="font-bold">Appointments</div>
+                <div className="text-xs text-slate-500">Tele/Physical</div>
+              </button>
+              <button className="aspect-square rounded-xl bg-white shadow border p-3 text-left">
+                <div className="text-4xl">💊</div>
+                <div className="font-bold">Medicines</div>
+                <div className="text-xs text-slate-500">Order/Search</div>
+              </button>
+              <button className="aspect-square rounded-xl bg-white shadow border p-3 text-left">
+                <div className="text-4xl">🧪</div>
+                <div className="font-bold">Lab Tests</div>
+                <div className="text-xs text-slate-500">Home collection</div>
+              </button>
+            </section>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <LabHomeCollection />
+              <MedicineSearch />
+            </div>
+          </>
+        )}
+
+        {role === 'doctor' && (
+          <DoctorDashboard />
+        )}
+
+        {role === 'hospital' && (
+          <HospitalConsole />
+        )}
+
+        {role === 'government' && (
+          <GovAnalytics />
+        )}
+
+        {role === 'admin' && (
+          <AdminPanel />
+        )}
+
+        <div className="text-xs text-slate-500">{syncing ? 'Syncing…' : lastSync ? `Last sync: ${lastSync.toLocaleString()}` : 'No sync yet'}</div>
+      </main>
+
+      <VoiceAssistantButton onTranscript={(txt) => {
+        if (/medicine|drug|tablet/i.test(txt)) {
+          alert('Opening Medicines search')
+        } else if (/lab|test|blood/i.test(txt)) {
+          alert('Opening Lab tests')
+        } else if (/sos|help|emergency/i.test(txt)) {
+          alert('Triggering SOS')
+        } else {
+          alert(`Heard: ${txt}`)
+        }
+      }} />
     </div>
   )
 }

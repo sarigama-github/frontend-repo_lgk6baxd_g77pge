@@ -1,0 +1,10 @@
+{
+  "login": {
+    "title": "स्वागत है",
+    "email": "ईमेल या फ़ोन",
+    "password": "पासवर्ड",
+    "submit": "साइन इन",
+    "choose_language": "भाषा चुनें",
+    "low_literacy_mode": "कम साक्षरता मोड"
+  }
+}

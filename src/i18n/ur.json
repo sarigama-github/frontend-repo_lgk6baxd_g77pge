@@ -1,0 +1,10 @@
+{
+  "login": {
+    "title": "خوش آمدید",
+    "email": "ای میل یا فون",
+    "password": "پاس ورڈ",
+    "submit": "سائن ان",
+    "choose_language": "زبان منتخب کریں",
+    "low_literacy_mode": "کم خواندگی موڈ"
+  }
+}

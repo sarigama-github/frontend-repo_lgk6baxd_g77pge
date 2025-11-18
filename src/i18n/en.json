@@ -1,0 +1,10 @@
+{
+  "login": {
+    "title": "Welcome",
+    "email": "Email or Phone",
+    "password": "Password",
+    "submit": "Sign In",
+    "choose_language": "Choose Language",
+    "low_literacy_mode": "Low Literacy Mode"
+  }
+}
